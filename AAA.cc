@@ -101,8 +101,8 @@ int main(){
 	return 0;
 }
 
-// g++ AAA.cc -o AAA -lgmp
-// ./AAA
+// make AAA et ./AAA
+// ou make
 
 // https://gmplib.org/#DOWNLOAD
 // https://gmplib.org/gmp-man-6.2.1.pdf

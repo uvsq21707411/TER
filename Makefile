@@ -1,3 +1,6 @@
+exe: AAA
+	./AAA
+	
 AAA: AAA.o encryption.o
 	g++ -o AAA AAA.o encryption.o -lgmp
 
@@ -11,5 +14,5 @@ encryption.o : encryption.cc encryption.h
 clean:
 	rm -f ∗.o
 
-mrproper : clean
+mrproper: clean
 	rm -f AAA
