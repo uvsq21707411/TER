@@ -14,7 +14,7 @@ int main(){
     clock_t time1, time2;
     time1 = clock();
 
-	mpz_t N,p,q,phi_n,m,p_prime,q_prime,beta,a,b,g,SK,theta;
+	mpz_t N,p,q,phi_n,m,beta,a,b,g,SK,theta; //p_prime,q_prime : ne sont pas utilisés
 	mpz_t ai[99];
 	int nb_parts = 5;
 	generate_PK(N,phi_n,p,q,m,beta,g,a,b,theta);
@@ -48,30 +48,11 @@ int main(){
 	time2 = clock();
     temps = (float)(time2-time1)/CLOCKS_PER_SEC;
     cout<<"Temps d'exécution :"<<temps<<"s"<<endl;
-   /* 
-    mpz_clear(N);
-    mpz_clear(p);
-    mpz_clear(q);
-    mpz_clear(phi_n);
-    mpz_clear(m);
-    mpz_clear(p_prime);
-    mpz_clear(q_prime);
-	mpz_clear(beta);
-    mpz_clear(a);
-    mpz_clear(b);
-    mpz_clear(g);
-    mpz_clear(SK);
-    mpz_clear(theta);
-    mpz_clear(f_x);
-    mpz_clear(M);
-    mpz_clear(C);
-    for(int i = 0 ; i < 99; i++){
-		mpz_clear(ai[i]);
-    }
-   */
+   
+    
    //Test fonction L
    
-  //θ = L(gmβ) = amβ mod N
+  //θ = L(g^mβ) = amβ mod N
 	mpz_t Test_L, Test_L_prime, g_m_beta, m_beta;
 	mpz_init(Test_L);
 	mpz_init(Test_L_prime);
@@ -80,10 +61,10 @@ int main(){
 	
 	//m * beta
 	mpz_mul(m_beta, m, beta);
-	gmp_printf ("m: %Zd\nbeta:%Zd\n m_beta :%Zd\n",m,beta,m_beta);
+	gmp_printf ("m: %Zd\nbeta:%Zd \nm_beta :%Zd\n",m,beta,m_beta);
 	//mpz_mod(m_beta,m_beta,N);
 	//g puissance m*beta
-	mpz_powm (g_m_beta, g, m_beta, N);
+	mpz_powm(g_m_beta, g, m_beta,N);
     gmp_printf ("gmbeta: %Zd\n",g_m_beta);
 	//L(gmβ)
 	L_function(Test_L, g_m_beta, N);
@@ -95,9 +76,37 @@ int main(){
 	mpz_mul(Test_L_prime,Test_L_prime,m_beta);
 	mpz_mod(Test_L_prime,Test_L_prime,N);
 
-	gmp_printf ("Test_L: %Zd -> Test_L_prime : %Zd\n",Test_L, Test_L_prime);
+	gmp_printf ("Test_L: %Zd \nTest_L_prime : %Zd\n",Test_L, Test_L_prime);
   
     
+
+	// Libération de la mémoire
+	mpz_clear(N);
+    mpz_clear(p);
+    mpz_clear(q);
+    mpz_clear(phi_n);
+    mpz_clear(m);
+	mpz_clear(beta);
+    mpz_clear(a);
+    mpz_clear(b);
+    mpz_clear(g);
+    mpz_clear(SK);
+    mpz_clear(theta);
+   	mpz_clear(f_x);
+    mpz_clear(M);
+    mpz_clear(C);
+	
+	mpz_clear(Test_L);
+	mpz_clear(Test_L_prime);
+	mpz_clear(g_m_beta);
+	mpz_clear(m_beta);
+
+    for(int i = 0 ; i < 5; i++){ // <- Les 5 premiers éléments sont alloués actuellement 
+		mpz_clear(ai[i]);
+    }
+/* 	mpz_clear(p_prime);
+    mpz_clear(q_prime);
+   */
 	return 0;
 }
 

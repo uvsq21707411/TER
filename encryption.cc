@@ -168,7 +168,7 @@ void L_function(mpz_t lu, mpz_t u, mpz_t N){
 	mpz_init(u_1);
 	mpz_sub_ui(u_1,u,1);
 	// Il faut trouver lz moyen de bien faire la division, pas avec mpz_divexact qui suppose que M divise den
-	mpz_divexact(lu,u_1,N);
+	mpz_cdiv_q(lu,u_1,N);
 	//gmp_printf ("Value divexact: %Zd\n",lu);
 	// maybe implement div..
 	//div(lu,u_1,N); 
