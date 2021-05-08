@@ -53,18 +53,20 @@ int main(){
    //Test fonction L
    
   //θ = L(g^mβ) = amβ mod N
-	mpz_t Test_L, Test_L_prime, g_m_beta, m_beta;
+	mpz_t Test_L, Test_L_prime, g_m_beta, m_beta,N_2;
 	mpz_init(Test_L);
 	mpz_init(Test_L_prime);
 	mpz_init(g_m_beta);
 	mpz_init(m_beta);
+	mpz_init_set(N_2,N);
+	mpz_mul(N_2,N_2,N);
 	
 	//m * beta
 	mpz_mul(m_beta, m, beta);
 	gmp_printf ("m: %Zd\nbeta:%Zd \nm_beta :%Zd\n",m,beta,m_beta);
 	//mpz_mod(m_beta,m_beta,N);
 	//g puissance m*beta
-	mpz_powm(g_m_beta, g, m_beta,N);
+	mpz_powm(g_m_beta, g, m_beta,N_2);
     gmp_printf ("gmbeta: %Zd\n",g_m_beta);
 	//L(gmβ)
 	L_function(Test_L, g_m_beta, N);
@@ -75,9 +77,11 @@ int main(){
 	mpz_set(Test_L_prime,a);
 	mpz_mul(Test_L_prime,Test_L_prime,m_beta);
 	mpz_mod(Test_L_prime,Test_L_prime,N);
-
+	
 	gmp_printf ("Test_L: %Zd \nTest_L_prime : %Zd\n",Test_L, Test_L_prime);
-  
+	if(mpz_cmp(Test_L,Test_L_prime) == 0) cout<<"égalité";
+	else cout<<"différents";
+	cout<<"\n";
     
 
 	// Libération de la mémoire
@@ -100,6 +104,7 @@ int main(){
 	mpz_clear(Test_L_prime);
 	mpz_clear(g_m_beta);
 	mpz_clear(m_beta);
+	mpz_clear(N_2);
 
     for(int i = 0 ; i < 5; i++){ // <- Les 5 premiers éléments sont alloués actuellement 
 		mpz_clear(ai[i]);
