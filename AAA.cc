@@ -36,8 +36,8 @@ int main(){
 
 	mpz_t f_x;
 	mpz_init(f_x);
-	// F(4) = share si of 4th server 
-	// F_shamir(f_x,4,ai,nb_parts,N,m);
+	//F(4) = share si of 4th server 
+	F_shamir(f_x,4,ai,nb_parts,N,m);
 
 	mpz_t M,C;
 	mpz_init(M);
@@ -49,6 +49,7 @@ int main(){
     temps = (float)(time2-time1)/CLOCKS_PER_SEC;
     cout<<"Temps d'exécution :"<<temps<<"s"<<endl;
    
+   //combining_decryption(C,a,N,theta,delta,j,S);
     
    //Test fonction L
    
