@@ -285,3 +285,10 @@ void combining_decryption(mpz_t M, mpz_t cj[], mpz_t N, mpz_t theta, unsigned lo
 	mpz_mod(M,M,N);
 
 }
+
+//Tests
+
+//calcule result = n!
+unsigned long int factorial(unsigned long int n){
+   return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n;
+}

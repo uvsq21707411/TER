@@ -16,7 +16,12 @@ int main(){
 
 	mpz_t N,p,q,phi_n,m,beta,a,b,g,SK,theta; //p_prime,q_prime : ne sont pas utilisés
 	mpz_t ai[99];
+	mpz_t ci[5],si[5]; //pour le test
 	int nb_parts = 5;
+	for(int i = 0; i < nb_parts; ++i){
+		mpz_init(ci[i]);
+		mpz_init(si[i]);
+	}
 	generate_PK(N,phi_n,p,q,m,beta,g,a,b,theta);
 	generate_SK_share_table_ai(ai,beta,m,N,SK,nb_parts);
 	/*gmp_printf ("Value N: %Zd\n",N);
@@ -49,11 +54,24 @@ int main(){
     temps = (float)(time2-time1)/CLOCKS_PER_SEC;
     cout<<"Temps d'exécution :"<<temps<<"s"<<endl;
    
-   //combining_decryption(C,a,N,theta,delta,j,S);
+    //génération des partages(share)
+    for(int i = 0; i <nb_parts; ++i){
+		share_ci(ci[i],C,nb_parts,i,ai,nb_parts,si[i],N,m);
+	}
+    //delta
+	unsigned long int delta = factorial(nb_parts);
+
+	//déchiffrement
+	//for(int j = 0 ; j < nb_parts; j++){
+   		// combining_decryption(M,ci,N,theta,delta,0,5);
+	//}
+	//gmp_printf ("M = %Zd\nb",M);
+
     
-   //Test fonction L
+
+//Test fonction L
    
-  //θ = L(g^mβ) = amβ mod N
+    //θ = L(g^mβ) = amβ mod N
 	mpz_t Test_L, Test_L_prime, g_m_beta, m_beta,N_2;
 	mpz_init(Test_L);
 	mpz_init(Test_L_prime);
@@ -64,11 +82,9 @@ int main(){
 	
 	//m * beta
 	mpz_mul(m_beta, m, beta);
-	gmp_printf ("m: %Zd\nbeta:%Zd \nm_beta :%Zd\n",m,beta,m_beta);
 	//mpz_mod(m_beta,m_beta,N);
 	//g puissance m*beta
 	mpz_powm(g_m_beta, g, m_beta,N_2);
-    gmp_printf ("gmbeta: %Zd\n",g_m_beta);
 	//L(gmβ)
 	L_function(Test_L, g_m_beta, N);
 	
@@ -100,6 +116,7 @@ int main(){
    	mpz_clear(f_x);
     mpz_clear(M);
     mpz_clear(C);
+
 	
 	mpz_clear(Test_L);
 	mpz_clear(Test_L_prime);
@@ -107,9 +124,13 @@ int main(){
 	mpz_clear(m_beta);
 	mpz_clear(N_2);
 
-    for(int i = 0 ; i < 5; i++){ // <- Les 5 premiers éléments sont alloués actuellement 
+    for(int i = 0 ; i < nb_parts; i++){ // <- Les 5 premiers éléments sont alloués actuellement 
 		mpz_clear(ai[i]);
+		//mpz_clear(ci[i]);
+		//mpz_clear(si[i]);
     }
+	
+
 /* 	mpz_clear(p_prime);
     mpz_clear(q_prime);
    */
