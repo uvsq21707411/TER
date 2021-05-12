@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <math.h>
 #include "encryption.h"
-
+using namespace std;
 // mpz_t N, mpz_t phi_n, mpz_t p, mpz_t q, mpz_t m, mpz_t beta, mpz_t g, mpz_t a, mpz_t b, mpz_t theta
 void generate_PK(mpz_t N, mpz_t phi_n, mpz_t p, mpz_t q, mpz_t m, mpz_t beta, mpz_t g, mpz_t a, mpz_t b, mpz_t theta){
 	mpz_t p_1,q_1,p_prime,q_prime,N_square,SK;
@@ -251,44 +251,92 @@ void share_ci(mpz_t ci, mpz_t c, unsigned long int nb_servers, unsigned long int
 }
 
 // Utilisée dans combining_decryption
-unsigned long int mu_0j_S(unsigned long int delta, unsigned long int j, unsigned long int S){
-	unsigned long int res = delta;
-	for(unsigned long int j_ = 1; j_ < S+1; ++j_){
-		if(j_ != j) res *= j_/(j_-j);
-		else;
+void mu_0j_S(mpz_t res,mpz_t delta, unsigned long int j, mpz_t s[], unsigned long int nb_parts){
+	
+	mpz_t multiple,denom;
+	mpz_init(multiple);
+	mpz_init(denom);
+	mpz_set(res,delta);
+	for(unsigned long int j_ = 0; j_ < nb_parts; ++j_){  //J'ai changé le j = 1 en j = 0 et j < S+1 en j< S
+		if(mpz_cmp(s[j_],s[j])!= 0)  
+		{			
+		//j'-j
+		mpz_set(denom,s[j_]);
+		mpz_sub(denom,denom,s[j]);
+		
+		//gmp_printf ("denom = %Zd\n",denom);
+
+		//j'/j'-j
+		mpz_set(multiple,s[j_]);
+		mpz_div(multiple,multiple,denom);
+		gmp_printf ("multiple = %Zd\n",multiple);
+		//res = res * (j'/j'-j)
+		mpz_mul(res, res, multiple);
+		gmp_printf ("res = %Zd\n",res);
+		}
 	}
-	return res;
+	mpz_clear(multiple);
+	mpz_clear(denom);
 }
 
 // Utilise toutes les partial decryption cj pour retrouver M
 // M devra être décomposé en base A pour faire le décompte des votes
 // v0+v1*A+...+ vk−1*A^k−1, où vj est le nombre de votes pour le candidat j, vj=<l<A
-void combining_decryption(mpz_t M, mpz_t cj[], mpz_t N, mpz_t theta, unsigned long int delta, unsigned long int j, unsigned long int S){
-	unsigned long int exp,delta_2;
-	mpz_t N_2, den, prod, tmp; 
+void combining_decryption(mpz_t M, mpz_t cj[], mpz_t N, mpz_t theta, unsigned long int delta, mpz_t si[], unsigned long int nb_parts){
+	
+	cout<<"Entrée de la fonction\n";
+	unsigned long int delta_2;
+	mpz_t N_2, den, prod, tmp,exp,delta_mpz; 
+	
+	mpz_init(delta_mpz);
+	mpz_set_ui(delta_mpz,delta);//ajout pour matcher avec le changement de la fonction mu
 	mpz_init(N_2);
+	mpz_init(exp);
+	cout<<"Avant tmppppp\n";
+	mpz_init(tmp);
+	cout<<"Après tmppppp\n";
+	mpz_init(den);
+	mpz_init(prod);
+	
 	mpz_mul(N_2,N,N);
 	delta_2 = pow(delta,2);
 	mpz_mul_ui(den,theta,delta_2);
 	mpz_mul_ui(den,den,4);
-	for(unsigned long int j = 1; j < S+1; ++j){
-		exp = mu_0j_S(delta,j,S);
-		exp *= 2;
-		mpz_powm_ui(tmp,cj[j],exp,N_2);
+	cout<<"Avant la boucle\n";
+	cout<<"##########j = 0###########\n\n";
+	mu_0j_S(exp,delta_mpz,0,si,nb_parts);
+	mpz_mul_ui(exp,exp,2);
+	gmp_printf ("exp = %Zd\n",exp);
+	mpz_powm(tmp,cj[0],exp,N_2);
+	gmp_printf ("tmp: %Zd\n",tmp);
+	mpz_set(prod,tmp);
+	gmp_printf ("prod = %Zd\n",prod);
+	for(unsigned long int j = 1; j < nb_parts; ++j){ //J'ai changé le j = 1 en j = 0 et j < S+1 en j< S
+		cout<<"##########j = "<<j<<"###########\n\n";
+
+		mu_0j_S(exp,delta_mpz,j,si,nb_parts);
+		mpz_mul_ui(exp,exp,2);
+		gmp_printf ("exp = %Zd\n",exp);
+		mpz_powm(tmp,cj[j],exp,N_2);
+		gmp_printf ("tmp: %Zd\n",tmp);
 		mpz_mul(prod,prod,tmp);
+		gmp_printf ("prod = %Zd\n",prod);
 	}
+
+	cout<<"Après la boucle\n";
 	// Apply L à prod
 	L_function(M,prod,N);
 	// Diviser le résultat par den, apply mod N
 	// Il faut trouver lz moyen de bien faire la division, pas avec mpz_divexact qui suppose que M divise den
-	mpz_divexact(M,M,den);
+	mpz_cdiv_q(M,M,den);
 	mpz_mod(M,M,N);
-
+	cout<<"sortie de la fonction\n";
+	//*/
 }
 
 //Tests
 
-//calcule result = n!
+//retourne n!
 unsigned long int factorial(unsigned long int n){
    return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n;
 }

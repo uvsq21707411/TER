@@ -14,8 +14,15 @@ int main(){
     clock_t time1, time2;
     time1 = clock();
 
+    gmp_randstate_t state;
+	gmp_randinit_default(state);
+	srand(time(NULL));
+	unsigned long seed = rand()%1999;    
+	gmp_randseed_ui(state,seed);
+
+
 	mpz_t N,p,q,phi_n,m,beta,a,b,g,SK,theta; //p_prime,q_prime : ne sont pas utilisés
-	mpz_t ai[99];
+	mpz_t ai[5];
 	mpz_t ci[5],si[5]; //pour le test
 	int nb_parts = 5;
 	for(int i = 0; i < nb_parts; ++i){
@@ -44,28 +51,38 @@ int main(){
 	//F(4) = share si of 4th server 
 	F_shamir(f_x,4,ai,nb_parts,N,m);
 
-	mpz_t M,C;
+	mpz_t M,C,M_prime;
 	mpz_init(M);
 	mpz_init(C);
-	//mpz_urandomm(M,state,N);
+	mpz_init(M_prime);
+
+	cout<<"Encryption\n";
+	//M = 0
+	mpz_set_ui(M,0);
+	
 	Encryption(C,M,g,N);
+	gmp_printf ("Value main M: %Zd\n",M);
+	gmp_printf ("Value main C: %Zd\n",C);
 
 	time2 = clock();
     temps = (float)(time2-time1)/CLOCKS_PER_SEC;
     cout<<"Temps d'exécution :"<<temps<<"s"<<endl;
    
+   cout<<"share\n";
     //génération des partages(share)
     for(int i = 0; i <nb_parts; ++i){
 		share_ci(ci[i],C,nb_parts,i,ai,nb_parts,si[i],N,m);
+		//share_ci(ci, c, nb_servers, num_server, ai[], size_ai,  si,  N, m)
 	}
     //delta
 	unsigned long int delta = factorial(nb_parts);
 
+	cout<<"Combining decryption\n";
 	//déchiffrement
-	//for(int j = 0 ; j < nb_parts; j++){
-   		// combining_decryption(M,ci,N,theta,delta,0,5);
-	//}
-	//gmp_printf ("M = %Zd\nb",M);
+	combining_decryption(M_prime,ci,N,theta,delta,si,nb_parts);
+	gmp_printf ("M_prime = %Zd\nb",M_prime);
+
+	cout<<"Combining decryption here\n";
 
     
 
@@ -126,14 +143,17 @@ int main(){
 
     for(int i = 0 ; i < nb_parts; i++){ // <- Les 5 premiers éléments sont alloués actuellement 
 		mpz_clear(ai[i]);
-		//mpz_clear(ci[i]);
-		//mpz_clear(si[i]);
+		mpz_clear(ci[i]);
+		mpz_clear(si[i]);
     }
 	
 
 /* 	mpz_clear(p_prime);
     mpz_clear(q_prime);
    */
+
+
+    
 	return 0;
 }
 
