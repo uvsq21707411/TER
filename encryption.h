@@ -38,7 +38,7 @@ void share_ci(mpz_t ci, mpz_t c, unsigned long int nb_servers, unsigned long int
 
 
 // Utilisée dans combining_decryption
-void mu_0j_S(mpz_t res,mpz_t delta, unsigned long int j, mpz_t s[], unsigned long int nb_parts);
+void mu_0j_S(mpz_t res, unsigned long delta, unsigned long int j, mpz_t s[], unsigned long int nb_parts);
 
 // Utilise toutes les partial decryption cj pour retrouver M
 // M devra être décomposé en base A pour faire le décompte des votes

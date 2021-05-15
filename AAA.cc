@@ -20,11 +20,11 @@ int main(){
 	unsigned long seed = rand()%1999;    
 	gmp_randseed_ui(state,seed);
 
-
+	int nb_parts = 3;
 	mpz_t N,p,q,phi_n,m,beta,a,b,g,SK,theta; //p_prime,q_prime : ne sont pas utilisés
-	mpz_t ai[5];
-	mpz_t ci[5],si[5]; //pour le test
-	int nb_parts = 5;
+	mpz_t ai[nb_parts];
+	mpz_t ci[nb_parts],si[nb_parts]; //pour le test
+	
 	for(int i = 0; i < nb_parts; ++i){
 		mpz_init(ci[i]);
 		mpz_init(si[i]);
@@ -49,7 +49,7 @@ int main(){
 	mpz_t f_x;
 	mpz_init(f_x);
 	//F(4) = share si of 4th server 
-	F_shamir(f_x,4,ai,nb_parts,N,m);
+	//F_shamir(f_x,4,ai,nb_parts,N,m);
 
 	mpz_t M,C,M_prime;
 	mpz_init(M);
@@ -58,15 +58,13 @@ int main(){
 
 	cout<<"Encryption\n";
 	//M = 0
-	mpz_set_ui(M,0);
+	mpz_set_ui(M,1);
 	
 	Encryption(C,M,g,N);
 	gmp_printf ("Value main M: %Zd\n",M);
 	gmp_printf ("Value main C: %Zd\n",C);
 
-	time2 = clock();
-    temps = (float)(time2-time1)/CLOCKS_PER_SEC;
-    cout<<"Temps d'exécution :"<<temps<<"s"<<endl;
+
    
    cout<<"share\n";
     //génération des partages(share)
@@ -141,7 +139,7 @@ int main(){
 	mpz_clear(m_beta);
 	mpz_clear(N_2);
 
-    for(int i = 0 ; i < nb_parts; i++){ // <- Les 5 premiers éléments sont alloués actuellement 
+    for(int i = 0 ; i < nb_parts; i++){  
 		mpz_clear(ai[i]);
 		mpz_clear(ci[i]);
 		mpz_clear(si[i]);
@@ -153,7 +151,9 @@ int main(){
    */
 
 
-    
+    time2 = clock();
+    temps = (float)(time2-time1)/CLOCKS_PER_SEC;
+    cout<<"Temps d'exécution :"<<temps<<"s"<<endl;
 	return 0;
 }
 
