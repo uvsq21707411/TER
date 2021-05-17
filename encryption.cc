@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -21,7 +20,7 @@ void generate_PK(mpz_t N, mpz_t phi_n, mpz_t p, mpz_t q, mpz_t m, mpz_t beta, mp
 	unsigned long exp;
 	mpz_init_set_str(base,"2",10);
 	mpz_init(max);
-	exp = 10;
+	exp = 85;
 	mpz_pow_ui(max, base, exp);
 
 	mpz_t gcd_N_phi_n;
@@ -136,8 +135,8 @@ void generate_PK(mpz_t N, mpz_t phi_n, mpz_t p, mpz_t q, mpz_t m, mpz_t beta, mp
 	mpz_mod(theta,theta,N);
 }
 
-//Pas de pb
-// ai[] contient les valeurs des bouts de clés 
+
+// ai[] contient les valeurs des bouts de clés de SK
 void generate_SK_share_table_ai(mpz_t ai[], mpz_t beta, mpz_t m, mpz_t N, mpz_t SK, int nb_parts){
 	gmp_randstate_t state;
 	gmp_randinit_default(state);
@@ -146,8 +145,6 @@ void generate_SK_share_table_ai(mpz_t ai[], mpz_t beta, mpz_t m, mpz_t N, mpz_t 
 	gmp_randseed_ui(state,seed);
 	mpz_init(SK);
 	mpz_mul(SK,beta,m);
-	//int t = nb_parts; // t nombre de parts de SK
-	// Tableau ai[] stockant les parts de SK
 	mpz_init(ai[0]);
 	mpz_set(ai[0],SK);
 	mpz_t N_0_m_1,m_1;
@@ -155,33 +152,28 @@ void generate_SK_share_table_ai(mpz_t ai[], mpz_t beta, mpz_t m, mpz_t N, mpz_t 
 	mpz_sub_ui(m_1,m,1);
 	mpz_init(N_0_m_1);
 	mpz_mul(N_0_m_1,N,m_1);
-	for (int i = 1 ; i < nb_parts; ++i){
+	for (int i = 1 ; i < nb_parts+1; ++i){
 		mpz_init(ai[i]); 
 		mpz_urandomm (ai[i],state,N_0_m_1);	
 	}
-	// ai[] contient les valeurs des bouts de clés 
 }
 
-// L(u) = (u-1)/N //sur ???
+// L(u) = (u-1)/N 
 void L_function(mpz_t lu, mpz_t u, mpz_t N){
-	// to do ?: check u<N² and u = 1 mod N
 	mpz_t u_1;
 	mpz_init(u_1);
 	mpz_sub_ui(u_1,u,1);
-	// Il faut trouver lz moyen de bien faire la division, pas avec mpz_divexact qui suppose que M divise den
-	mpz_cdiv_q(lu,u_1,N);
-	
-	//mpz_invert();
+	mpz_cdiv_q(lu,u_1,N);	
 }
 
-// Calcule f_x = f(num_server) = si grâce à ai[] tableau des bouts de clé
+// Calcule share_si = f_x = f(num_server) grâce à ai[] tableau des bouts de clé
 void F_shamir(mpz_t f_x, unsigned long int num_server,mpz_t ai[], unsigned long int size_ai, mpz_t N, mpz_t m){
 	mpz_t tmp,Nm;
 	mpz_init(tmp);
 	mpz_init(Nm);
 	mpz_mul(Nm,N,m);
 	unsigned long int prod;
-	for(unsigned long int i = 0; i < size_ai; ++i){
+	for(unsigned long int i = 0; i < size_ai+1; ++i){
 		prod = pow(num_server,i); 
 		mpz_mul_ui(tmp,ai[i],prod);
 		mpz_add(f_x,f_x,tmp);
@@ -203,7 +195,6 @@ void Generate_vote(mpz_t M, unsigned long int candidate, mpz_t nb_voters){
 
 // Fonctions de Key Generation
 
-//a l'air sur
 // C contient le chiffré du vote M
 void Encryption(mpz_t C, mpz_t M, mpz_t g, mpz_t N){
 	mpz_t x,N_square,gM,xN,res;
@@ -252,31 +243,26 @@ void share_ci(mpz_t ci, mpz_t c, unsigned long int nb_servers, unsigned long int
 	mpz_powm(ci,c,delt_si_2,N_squ);
 }
 
-// Utilisée dans combining_decryption
+// Utilisée dans combining_decryption, le set s contient les partial decryptions donc les cj
 void mu_0j_S(mpz_t res,unsigned long delta, unsigned long int j, mpz_t s[], unsigned long int nb_parts){
-	
 	mpz_t multiple,denom;
 	mpz_init(multiple);
 	mpz_init(denom);
 	mpz_set_ui(res,delta);
-	gmp_printf ("res= %Zd\n",res);
-	for(unsigned long int j_ = 0; j_ < nb_parts; ++j_){  
-		if(mpz_cmp(s[j_],s[j])!= 0)  
-		{			
+	//gmp_printf ("res= %Zd\n",res);
+	for(unsigned long int j_ = 0; j_ < nb_parts+1; ++j_){  
+		if(mpz_cmp(s[j_],s[j])!= 0){
 		//j'-j
 		mpz_set(denom,s[j_]);
 		mpz_sub(denom,denom,s[j]);
-		
-		//gmp_printf ("denom = %Zd\n",denom);
-
 		//j'/j'-j
 		mpz_set(multiple,s[j_]);
 		mpz_cdiv_q(multiple,multiple,denom);
-		gmp_printf ("multiple = %Zd\n",multiple);
-		if(mpz_cmp_ui(multiple,0)) cout<<"ERROR\n",
+		//gmp_printf ("multiple = %Zd\n",multiple);
+		//if(mpz_cmp_ui(multiple,0)) cout<<"ERROR\n",
 		//res = res * (j'/j'-j)
 		mpz_mul(res, res, multiple);
-		gmp_printf ("res = %Zd\n",res);
+		//gmp_printf ("res = %Zd\n",res);
 		}
 	}
 	mpz_clear(multiple);
@@ -284,7 +270,7 @@ void mu_0j_S(mpz_t res,unsigned long delta, unsigned long int j, mpz_t s[], unsi
 }
 
 // Utilise toutes les partial decryption cj pour retrouver M
-// M devra être décomposé en base A pour faire le décompte des votes
+// Dans le cas d'un vote non binaire, M devra être décomposé en base A pour faire le décompte des votes
 // v0+v1*A+...+ vk−1*A^k−1, où vj est le nombre de votes pour le candidat j, vj=<l<A
 void combining_decryption(mpz_t M, mpz_t cj[], mpz_t N, mpz_t theta, unsigned long int delta, mpz_t si[], unsigned long int nb_parts){
 	
@@ -304,34 +290,41 @@ void combining_decryption(mpz_t M, mpz_t cj[], mpz_t N, mpz_t theta, unsigned lo
 	//4 * theta * delta²
 	mpz_mul_ui(den,den,4);
 	cout<<"##########j = 0###########\n\n";
-	mu_0j_S(exp,delta,0,si,nb_parts);
+	mu_0j_S(exp,delta,0,cj,nb_parts); // si, cj
 	mpz_mul_ui(exp,exp,2);
 	mpz_powm(tmp,cj[0],exp,N_2);
 	mpz_set(prod,tmp);
 
-	for(unsigned long int j = 1 ; j < nb_parts; ++j){ //J'ai changé le j = 1 en j = 0 et j < S+1 en j< S
+	for(unsigned long int j = 1 ; j < nb_parts+1; ++j){
 		cout<<"##########j = "<<j<<"###########\n\n";
-
-		mu_0j_S(exp,delta,j,si,nb_parts);
+		mu_0j_S(exp,delta,j,cj,nb_parts); // cj, si
 		mpz_mul_ui(exp,exp,2);
-		
 		mpz_powm(tmp,cj[j],exp,N_2);
-		
 		mpz_mul(prod,prod,tmp);
-		
+		// Threshold, oo:min servers required
+		mpz_t oo;
+		mpz_init(oo);
+		L_function(oo,prod,N);
+		mpz_cdiv_q(oo,oo,den);
+		mpz_mod(oo,oo,N);
+		gmp_printf ("Etat combining_decryption: %Zd\n",oo);
+		if(mpz_cmp_ui(oo,1)== 0){
+			//cout << "1 HERE"<<endl;
+			mpz_set(M,oo);
+			mpz_clear(oo);
+			break;
+		}
+		else;
 	}
-
-	// Apply L à prod
-	L_function(M,prod,N);
-	// Diviser le résultat par den, apply mod N
-	// Il faut trouver lz moyen de bien faire la division, pas avec mpz_divexact qui suppose que M divise den
-	mpz_cdiv_q(M,M,den);
-	mpz_mod(M,M,N);
-	cout<<"sortie de la fonction\n";
-	//*/
+	if(mpz_cmp_ui(M,1)!= 0){
+		//Apply L à prod
+		L_function(M,prod,N);
+		//Diviser le résultat par den, apply mod N
+		mpz_cdiv_q(M,M,den);
+		mpz_mod(M,M,N);
+	}
 }
 
-//Tests
 
 //retourne n!
 unsigned long int factorial(unsigned long int n){
