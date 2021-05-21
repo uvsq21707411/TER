@@ -137,7 +137,7 @@ void generate_PK(mpz_t N, mpz_t phi_n, mpz_t p, mpz_t q, mpz_t m, mpz_t beta, mp
 
 
 // ai[] contient les valeurs des bouts de clés de SK
-void generate_SK_share_table_ai(mpz_t ai[], mpz_t beta, mpz_t m, mpz_t N, mpz_t SK, int nb_parts){
+void generate_SK_share_table_ai(mpz_t ai[], mpz_t beta, mpz_t m, mpz_t N, mpz_t SK, int nb_parts,int size_ai){
 	gmp_randstate_t state;
 	gmp_randinit_default(state);
 	srand(time(NULL));
@@ -152,7 +152,7 @@ void generate_SK_share_table_ai(mpz_t ai[], mpz_t beta, mpz_t m, mpz_t N, mpz_t 
 	mpz_sub_ui(m_1,m,1);
 	mpz_init(N_0_m_1);
 	mpz_mul(N_0_m_1,N,m_1);
-	for (int i = 1 ; i < nb_parts+1; ++i){
+	for (int i = 1 ; i <= size_ai; ++i){
 		mpz_init(ai[i]); 
 		mpz_urandomm (ai[i],state,N_0_m_1);	
 	}
@@ -173,7 +173,7 @@ void F_shamir(mpz_t f_x, unsigned long int num_server,mpz_t ai[], unsigned long 
 	mpz_init(Nm);
 	mpz_mul(Nm,N,m);
 	unsigned long int prod;
-	for(unsigned long int i = 0; i < size_ai+1; ++i){
+	for(unsigned long int i = 0; i < size_ai; ++i){
 		prod = pow(num_server,i); 
 		mpz_mul_ui(tmp,ai[i],prod);
 		mpz_add(f_x,f_x,tmp);
@@ -212,7 +212,7 @@ void Encryption(mpz_t C, mpz_t M, mpz_t g, mpz_t N){
 	gmp_randstate_t state;
 	gmp_randinit_default(state);
 	srand(time(NULL));
-	unsigned long seed = rand()%1999;    
+	unsigned long seed = rand()%1999+ (int)clock();    
 	gmp_randseed_ui(state,seed);
 	mpz_urandomm (x,state,N);
 	gmp_printf ("Value g: %Zd\n",g);
@@ -250,7 +250,7 @@ void mu_0j_S(mpz_t res,unsigned long delta, unsigned long int j, mpz_t s[], unsi
 	mpz_init(denom);
 	mpz_set_ui(res,delta);
 	//gmp_printf ("res= %Zd\n",res);
-	for(unsigned long int j_ = 0; j_ < nb_parts+1; ++j_){  
+	for(unsigned long int j_ = 0; j_ < nb_parts; ++j_){  
 		if(mpz_cmp(s[j_],s[j])!= 0){
 		//j'-j
 		mpz_set(denom,s[j_]);
@@ -295,7 +295,7 @@ void combining_decryption(mpz_t M, mpz_t cj[], mpz_t N, mpz_t theta, unsigned lo
 	mpz_powm(tmp,cj[0],exp,N_2);
 	mpz_set(prod,tmp);
 
-	for(unsigned long int j = 1 ; j < nb_parts+1; ++j){
+	for(unsigned long int j = 1 ; j < nb_parts; ++j){
 		cout<<"##########j = "<<j<<"###########\n\n";
 		mu_0j_S(exp,delta,j,cj,nb_parts); // cj, si
 		mpz_mul_ui(exp,exp,2);

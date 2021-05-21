@@ -10,7 +10,7 @@
 void generate_PK(mpz_t N, mpz_t phi_n, mpz_t p, mpz_t q, mpz_t m, mpz_t beta, mpz_t g, mpz_t a, mpz_t b, mpz_t theta);
 
 // ai[] contient les valeurs des bouts de clés 
-void generate_SK_share_table_ai(mpz_t ai[], mpz_t beta, mpz_t m, mpz_t N, mpz_t SK, int nb_parts);
+void generate_SK_share_table_ai(mpz_t ai[], mpz_t beta, mpz_t m, mpz_t N, mpz_t SK, int nb_parts,int size_ai);
 
 
 // L(u) = (u-1)/N

@@ -20,37 +20,73 @@ int main(int argc,char **argv){
 	unsigned long seed = rand()%1999;    
 	gmp_randseed_ui(state,seed);
 	
-	int nb_parts = 10;
+	int nb_parts = 2;
 	mpz_t N,p,q,phi_n,m,beta,a,b,g,SK,theta; 
 	mpz_t ai[nb_parts];
 	mpz_t ci[nb_parts],si[nb_parts]; 
 	
-	for(int i = 0; i < nb_parts+1; ++i){
+	for(int i = 0; i < nb_parts; ++i){
 		mpz_init(ci[i]);
 		mpz_init(si[i]);
 	}
 	generate_PK(N,phi_n,p,q,m,beta,g,a,b,theta);
-	generate_SK_share_table_ai(ai,beta,m,N,SK,nb_parts);
+	int size_ai = 4;//t
+	generate_SK_share_table_ai(ai,beta,m,N,SK,nb_parts,size_ai);
 
 	mpz_t f_x;
 	mpz_init(f_x);
 
-	mpz_t M,C,M_prime;
+	mpz_t M,M2,UN,C_UN,C,C2,M_prime;
 	mpz_init(M);
 	mpz_init(C);
+	mpz_init(M2);
+	mpz_init(C2);
 	mpz_init(M_prime);
+	
 
 	cout<<"Encryption\n";
 	//M=0,1
-	mpz_set_ui(M,1);
+	mpz_set_ui(M,0);
+	//mpz_set_ui(M2,5);
+	mpz_init_set_ui(UN,1);
 	
 	Encryption(C,M,g,N);
+	Encryption(C2,M2,g,N);
+	Encryption(C_UN,UN,g,N);
+	
+	//Test homomorphisme
+	mpz_mul(C,C,C_UN);
+	mpz_mul(C,C,C_UN);
+	mpz_mul(C,C,C_UN);
+	mpz_mul(C,C,C_UN);
+	//mpz_div(C,C,C_UN);
+	//A lair de marcher
+	mpz_div(C,C,C_UN);
+	mpz_div(C,C,C_UN);
+//	mpz_div(C,C,C_UN);
+	mpz_div(C,C,C_UN);
+	//mpz_div(C,C,C_UN);
+	mpz_div(C,C,C_UN);
+
+	
+
+	
+	//mpz_div(C,C,C_UN);
+	//mpz_div(C,C,C_UN);
+	
+	//conclusion : possibilité de retirer ou ajouter des chiffrés de 1 pour faire les comptes
+	
+	
+	
+
+
+	
 	gmp_printf ("Value main M: %Zd\n",M);
 	gmp_printf ("Value main C: %Zd\n",C);
 
     //génération des partial decryption cj(share)
-    for(int i = 0; i <nb_parts+1; ++i){
-		share_ci(ci[i],C,nb_parts,i,ai,nb_parts,si[i],N,m);
+    for(int i = 0; i <nb_parts; ++i){
+		share_ci(ci[i],C,nb_parts,i,ai,size_ai,si[i],N,m);
 		gmp_printf ("Share c%d: %Zd\n",i,ci[i]);
 	}
     //delta
@@ -76,11 +112,19 @@ int main(int argc,char **argv){
    	mpz_clear(f_x);
     mpz_clear(M);
     mpz_clear(C);
+	mpz_clear(M2);
+	mpz_clear(C2);
 
-    for(int i = 0 ; i < nb_parts+1; i++){  
-		mpz_clear(ai[i]);
+    for(int i = 0 ; i < nb_parts; i++){  
+	
+	
 		mpz_clear(ci[i]);
 		mpz_clear(si[i]);
+    }
+	for(int i = 0 ; i <= size_ai; i++){  
+	
+	
+		mpz_clear(ai[i]);
     }
 	
 
