@@ -83,7 +83,6 @@ int main(){
 
         monFlux.close();
 
-    gmp_printf ("Value main N: %Zd\n",N);
     //RECUPERER TUPLE VIA LA DB EN SQL
 
 
