@@ -133,6 +133,9 @@ void generate_PK(mpz_t N, mpz_t phi_n, mpz_t p, mpz_t q, mpz_t m, mpz_t beta, mp
 	mpz_mul(am,a,m);
 	mpz_mul(theta,am,beta);
 	mpz_mod(theta,theta,N);
+
+	gmp_printf ("Value N: %Zd\n",N);
+	gmp_printf ("Value phi(N): %Zd\n",phi_n);
 }
 
 

@@ -9,6 +9,7 @@
 
 using namespace std;
 
+int main(){
     //RECUPERER TUPLE VIA LA DB EN SQL
     //FAIRE LE PRODUIT DE TOUS LES VOTES 
     //COMPTER EN RETIRANT 1 A CHAQUE ITERATION
