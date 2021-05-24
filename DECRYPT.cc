@@ -11,9 +11,25 @@
 
 using namespace std;
 
+//Retourne le nombre de lignes du fichier
+int Nb_Lignes_Fichier_Votes()
+{
+    int nbLignes = 0;
+    ifstream in("/home/user/Bureau/TER/Votes.txt" , ios::in);
+    string ligne;
+    while(getline(in, ligne))
+    {
+        nbLignes++;
+    }
+    in.close(); // serait automatiquement fermé à la sortie du bloc
+    cout << "the Folder contains " << nbLignes << " lines." <<endl;
+    return nbLignes;
+}
+
 int main(){
-    mpz_t N,p,q,phi_n,m,beta,a,b,g,theta; 
-    mpz_inits(N,p,q,phi_n,m,beta,a,b,g,theta); 
+    mpz_t N,p,q,phi_n,m,beta,a,b,g,theta,SK; 
+    mpz_inits(N,p,q,phi_n,m,beta,a,b,g,theta,SK,NULL);    // parametre null a ajouter 
+    
     //RECUPERER LES CLES POUR LES OPERAIONS
     ifstream monFlux("/home/user/Bureau/TER/KEYGEN.txt");  //Ouverture d'un fichier en lecture
 
@@ -73,6 +89,11 @@ int main(){
                     monFlux >> mot;
                     mpz_set_str(theta,mot.c_str(),10);
                 }
+                if(mot == "SK")
+                { 
+                    monFlux >> mot;
+                    mpz_set_str(SK,mot.c_str(),10);
+                }
             }
            
         }
@@ -83,21 +104,93 @@ int main(){
 
         monFlux.close();
 
+
+    //TEST NB LIGNES
+    cout<<"Le nombre de ligne est de "<<Nb_Lignes_Fichier_Votes()<<endl;
+
+    int nbLignes = Nb_Lignes_Fichier_Votes();
+    mpz_t votes[nbLignes];
+    
     //RECUPERER TUPLE VIA LA DB EN SQL
+    ifstream monFlux2("/home/user/Bureau/TER/Votes.txt");  //Ouverture d'un fichier en lecture
 
+        if(monFlux2)
+        {
+            string mot;
+            int i = 0;
+            while(monFlux2.eof() == false){
+                monFlux2 >> mot;
+                mpz_init_set_str(votes[i],mot.c_str(),10);
+                i++;   
+            }
+        }
+        else
+        {
+            cout << "ERREUR: Impossible d'ouvrir le fichier en lecture." << endl;
+        }
 
-    //FAIRE LE PRODUIT DE TOUS LES VOTES 
-    //COMPTER EN RETIRANT 1 A CHAQUE ITERATION
+        monFlux2.close();
+        
 
-    mpz_clear(N);
-    mpz_clear(p);
-    mpz_clear(q);
-    mpz_clear(phi_n);
-    mpz_clear(m); 
-    mpz_clear(beta);mpz_clear(a);
-    mpz_clear(b);
-    mpz_clear(g);
-    mpz_clear(theta);
+    //GENERATION DES VALEURS POUR LE DECHIFFREMENT
+    int nb_parts = 6; 
+    int size_ai = 4;//t Il doit etre < nb_part -1
+	mpz_t ai[size_ai+1];
+	mpz_t ci[nb_parts],si[nb_parts]; 
+
+    for(int i = 0; i < nb_parts; ++i){
+		mpz_init(ci[i]);
+		mpz_init(si[i]);
+	}
+
+	generate_SK_share_table_ai(ai,beta,m,N,SK,nb_parts,size_ai);
+
+    mpz_t resultat,C_tmp;
+    mpz_inits(resultat,C_tmp,NULL);
+    
+    //COMPTER LES VOTES
+    int count = 0;
+
+    for(int cmp = 0 ; cmp < nbLignes ; cmp ++)
+    {   mpz_init_set(C_tmp,votes[cmp]);
+
+        for(int i = 0; i < nb_parts; ++i){
+            share_ci(ci[i],C_tmp,nb_parts,i,ai,size_ai,si[i],N,m);
+        }
+
+        //delta
+        unsigned long int delta = factorial(nb_parts);
+
+        cout<<"Combining decryption\n";
+        
+        //déchiffrement
+        combining_decryption(resultat,ci,N,theta,delta,si,nb_parts);
+        gmp_printf ("resultat = %Zd\n",resultat);
+        if(mpz_cmp_ui(resultat,1) == 0) count++;
+    }
+    cout<<"Le candidat 0 a obtenu "<<(nbLignes - count)<<"votes"<<endl; 
+    cout<<"Le candidat 1 a obtenu "<<count<<"votes"<<endl;
+
+    //Libération de la mémoire
+    mpz_clears(N,p,q,phi_n,m,beta,a,b,g,theta,SK,NULL);
+    
+   
+    for(int i = 0 ; i < nbLignes ; i++)
+    {
+        mpz_clear(votes[i]);
+    }
+    
+    for(int i = 0 ; i < nb_parts; i++){ 
+		mpz_clear(ci[i]);
+		mpz_clear(si[i]);
+    }
+
+	for(int i = 0 ; i <= size_ai; i++){  
+	
+	
+		mpz_clear(ai[i]);
+    }
+
 	return 0;
 }
 

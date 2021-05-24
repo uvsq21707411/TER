@@ -20,7 +20,7 @@ void generate_PK(mpz_t N, mpz_t phi_n, mpz_t p, mpz_t q, mpz_t m, mpz_t beta, mp
 	unsigned long exp;
 	mpz_init_set_str(base,"2",10);
 	mpz_init(max);
-	exp = 85;
+	exp = 80 + rand()%20;
 	mpz_pow_ui(max, base, exp);
 
 	mpz_t gcd_N_phi_n;
@@ -221,7 +221,7 @@ void Encryption(mpz_t C, mpz_t M, mpz_t g, mpz_t N){
 	gmp_printf ("Value g: %Zd\n",g);
 	gmp_printf ("Value x: %Zd\n",x);
 	gmp_printf ("Value N: %Zd\n",N);
-	gmp_printf ("Value N: %Zd\n",N_square);
+	gmp_printf ("Value N_square: %Zd\n",N_square);
 	mpz_powm(gM,g,M,N_square);
 	mpz_powm(xN,x,N,N_square);
 	mpz_mul(res,gM,xN);
@@ -286,20 +286,22 @@ void combining_decryption(mpz_t M, mpz_t cj[], mpz_t N, mpz_t theta, unsigned lo
 	mpz_init(den);
 	mpz_init(prod);
 	
-	
+	//N²
 	mpz_mul(N_2,N,N);
+	//delta²
 	delta_2 = pow(delta,2);
 	mpz_mul_ui(den,theta,delta_2);
 	//4 * theta * delta²
 	mpz_mul_ui(den,den,4);
-	cout<<"##########j = 0###########\n\n";
+	
+	//cout<<"##########j = 0###########\n\n";
 	mu_0j_S(exp,delta,0,cj,nb_parts); // si, cj
 	mpz_mul_ui(exp,exp,2);
 	mpz_powm(tmp,cj[0],exp,N_2);
 	mpz_set(prod,tmp);
 
 	for(unsigned long int j = 1 ; j < nb_parts; ++j){
-		cout<<"##########j = "<<j<<"###########\n\n";
+	//	cout<<"##########j = "<<j<<"###########\n\n";
 		mu_0j_S(exp,delta,j,cj,nb_parts); // cj, si
 		mpz_mul_ui(exp,exp,2);
 		mpz_powm(tmp,cj[j],exp,N_2);
