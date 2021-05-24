@@ -32,4 +32,4 @@ clean:
 	rm -f ∗.o
 
 mrproper: clean
-	rm -f AAA
+	rm -f AAA ENCRYPT DECRYPT KEYGEN

@@ -142,13 +142,15 @@ int main(){
 	generate_SK_share_table_ai(ai,beta,m,N,SK,nb_parts,size_ai);
 
     mpz_t resultat,C_tmp;
-    mpz_inits(resultat,C_tmp,NULL);
+    mpz_init(C_tmp);
     
     //COMPTER LES VOTES
     int count = 0;
 
     for(int cmp = 0 ; cmp < nbLignes ; cmp ++)
-    {   mpz_init_set(C_tmp,votes[cmp]);
+    {  
+        mpz_init(resultat);
+        mpz_init_set(C_tmp,votes[cmp]);
 
         for(int i = 0; i < nb_parts; ++i){
             share_ci(ci[i],C_tmp,nb_parts,i,ai,size_ai,si[i],N,m);
@@ -159,8 +161,12 @@ int main(){
 
         //déchiffrement
         combining_decryption(resultat,ci,N,theta,delta,si,nb_parts);
+        //gmp_printf("resultat = ")
         if(mpz_cmp_ui(resultat,1) == 0) count++;
+        mpz_clear(resultat);
+        
     }
+    cout<<"Nombre de lignes"<<nbLignes<<endl;
     cout<<"Le candidat 0 a obtenu "<<(nbLignes - count)<<"votes"<<endl; 
     cout<<"Le candidat 1 a obtenu "<<count<<"votes"<<endl;
 
