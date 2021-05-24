@@ -9,20 +9,33 @@
 #include <math.h>
 #include "encryption.h"
 
+
 using namespace std;
+
+int Nb_Lignes_Fichier_Votes_clairs()
+{
+    int nbLignes = 0;
+    ifstream in("votes_clairs.txt" , ios::in);
+    string ligne;
+    while(getline(in, ligne))
+    {
+        nbLignes++;
+    }
+    in.close(); // serait automatiquement fermé à la sortie du bloc
+
+    return nbLignes;
+}
+
 
 int main(int argc,char **argv){
 	
-	mpz_t chiffré, message_clair, g, N;
-	mpz_inits(chiffré, message_clair, g, N);
+	mpz_t message_clair, g, N;
+	mpz_inits( g, N,NULL);
 	
-	string vote("");
-	while((vote != "0") && (vote != "1")){
-		
-		cout << "Choix du candidat?(0/1)" << endl;
-		cin >> vote;
-	}
-	 ifstream monFlux("/home/user/Bureau/TER/KEYGEN.txt");  //Ouverture d'un fichier en lecture
+
+
+
+	 ifstream monFlux("KEYGEN.txt");  //Ouverture d'un fichier en lecture
 
         if(monFlux)
         {
@@ -49,12 +62,61 @@ int main(int argc,char **argv){
         }
 
         monFlux.close();
-
-	mpz_set_str(message_clair,vote.c_str(),10);
 	
-	Encryption(chiffré,message_clair,g,N);
-	gmp_printf("Chiffré = %Zd\n", chiffré);
-	mpz_clears(chiffré,message_clair,g,N);
+    int Nb_lignes = Nb_Lignes_Fichier_Votes_clairs();
+    
+    mpz_t chiffré[Nb_lignes];
+    cout<<Nb_lignes<<endl;
+    mpz_init(message_clair);
+    ifstream monFlux2("votes_clairs.txt");  //Ouverture d'un fichier en lecture
+
+        if(monFlux2)
+        {
+            int i = 0;
+            string mot;
+            while(monFlux2.eof() == false){
+                
+                mpz_init(chiffré[i]);
+                monFlux2 >> mot;
+                cout<<"mot = "<<mot<<endl;
+                mpz_set_str(message_clair,mot.c_str(),10);
+                Encryption(chiffré[i],message_clair,g,N);
+               
+                i++;
+            }
+           cout<<"i = "<<i<<endl;
+        }
+        else
+        {
+            cout << "ERREUR: Impossible d'ouvrir le fichier en lecture." << endl;
+        }
+
+        monFlux2.close();
+
+        ofstream monFlux3("Votes.txt");  //Ouverture d'un fichier en lecture
+
+        if(monFlux3)
+        {
+            char * str = NULL; //ne reconnait pas les string en c++
+            for(int i = 0 ; i < Nb_lignes; i++){
+                gmp_printf("chiffré = %d\n",i);
+                monFlux3<< mpz_get_str(str,10,chiffré[i])<<endl;
+            }
+           
+        }
+        else
+        {
+            cout << "ERREUR: Impossible d'ouvrir le fichier en lecture." << endl;
+        }
+
+        monFlux3.close();
+	
+
+	mpz_clears(g,N,NULL);
+    for(int j = 0 ; j < Nb_lignes ; j++){
+        mpz_clear(chiffré[j]);
+    }
+
 	return 0;
 }
 

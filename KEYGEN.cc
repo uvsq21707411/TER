@@ -17,7 +17,7 @@ int main(int argc,char **argv){
     mpz_init(SK);
     mpz_mul(SK,m,beta);
     
-    ofstream monFlux("/home/user/Bureau/TER/KEYGEN.txt");
+    ofstream monFlux("KEYGEN.txt");
     char * str = NULL; //ne reconnait pas les string en c++
 
     if(monFlux)    
@@ -44,7 +44,7 @@ int main(int argc,char **argv){
     monFlux.close();
     
     //Vider les votes dans le cas où l'on regénère les clés
-    ofstream monFlux2("/home/user/Bureau/TER/Votes.txt");
+    ofstream monFlux2("Votes.txt");
     if(monFlux2)    
     {}
     else

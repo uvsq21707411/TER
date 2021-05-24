@@ -15,7 +15,7 @@ using namespace std;
 int Nb_Lignes_Fichier_Votes()
 {
     int nbLignes = 0;
-    ifstream in("/home/user/Bureau/TER/Votes.txt" , ios::in);
+    ifstream in("Votes.txt" , ios::in);
     string ligne;
     while(getline(in, ligne))
     {
@@ -31,7 +31,7 @@ int main(){
     mpz_inits(N,p,q,phi_n,m,beta,a,b,g,theta,SK,NULL);    // parametre null a ajouter 
     
     //RECUPERER LES CLES POUR LES OPERAIONS
-    ifstream monFlux("/home/user/Bureau/TER/KEYGEN.txt");  //Ouverture d'un fichier en lecture
+    ifstream monFlux("KEYGEN.txt");  //Ouverture d'un fichier en lecture
 
         if(monFlux)
         {
@@ -108,7 +108,7 @@ int main(){
     mpz_t votes[nbLignes];
     
     //RECUPERER TUPLE VIA LA DB EN SQL
-    ifstream monFlux2("/home/user/Bureau/TER/Votes.txt");  //Ouverture d'un fichier en lecture
+    ifstream monFlux2("Votes.txt");  //Ouverture d'un fichier en lecture
 
         if(monFlux2)
         {
@@ -129,7 +129,7 @@ int main(){
         
 
     //GENERATION DES VALEURS POUR LE DECHIFFREMENT
-    int nb_parts = 11; 
+    int nb_parts = 8; 
     int size_ai = 5;//t A revoir pour ce nombre
 	mpz_t ai[size_ai+1];
 	mpz_t ci[nb_parts],si[nb_parts]; 
