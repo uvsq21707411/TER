@@ -22,7 +22,7 @@ int Nb_Lignes_Fichier_Votes()
         nbLignes++;
     }
     in.close(); // serait automatiquement fermé à la sortie du bloc
-    cout << "the Folder contains " << nbLignes << " lines." <<endl;
+
     return nbLignes;
 }
 
@@ -104,10 +104,6 @@ int main(){
 
         monFlux.close();
 
-
-    //TEST NB LIGNES
-    cout<<"Le nombre de ligne est de "<<Nb_Lignes_Fichier_Votes()<<endl;
-
     int nbLignes = Nb_Lignes_Fichier_Votes();
     mpz_t votes[nbLignes];
     
@@ -133,8 +129,8 @@ int main(){
         
 
     //GENERATION DES VALEURS POUR LE DECHIFFREMENT
-    int nb_parts = 6; 
-    int size_ai = 4;//t Il doit etre < nb_part -1
+    int nb_parts = 11; 
+    int size_ai = 5;//t A revoir pour ce nombre
 	mpz_t ai[size_ai+1];
 	mpz_t ci[nb_parts],si[nb_parts]; 
 
@@ -161,11 +157,8 @@ int main(){
         //delta
         unsigned long int delta = factorial(nb_parts);
 
-        cout<<"Combining decryption\n";
-        
         //déchiffrement
         combining_decryption(resultat,ci,N,theta,delta,si,nb_parts);
-        gmp_printf ("resultat = %Zd\n",resultat);
         if(mpz_cmp_ui(resultat,1) == 0) count++;
     }
     cout<<"Le candidat 0 a obtenu "<<(nbLignes - count)<<"votes"<<endl; 

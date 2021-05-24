@@ -42,10 +42,7 @@ void generate_PK(mpz_t N, mpz_t phi_n, mpz_t p, mpz_t q, mpz_t m, mpz_t beta, mp
 			mpz_mul_ui(p,p_prime,2);
 			mpz_add_ui(p,p,1);
 			int is_prime_p = mpz_probab_prime_p(p,10000);
-			if(is_prime_p == 1 || is_prime_p == 2){		//peut etre laisser que le 2
-				// cout<<"is_prime_p: "<<is_prime_p<<endl;
-				// gmp_printf ("%sValue of p_: %Zd\n","", p_prime);
-				// gmp_printf ("%sValue of p: %Zd\n","", p);
+			if(is_prime_p == 1 || is_prime_p == 2){		
 				test_p = 1;
 			}
 		}		
@@ -59,9 +56,6 @@ void generate_PK(mpz_t N, mpz_t phi_n, mpz_t p, mpz_t q, mpz_t m, mpz_t beta, mp
 			mpz_add_ui(q,q,1);
 			int is_prime_q = mpz_probab_prime_p(q,10000);
 			if(is_prime_q == 1 || is_prime_q == 2){
-				// cout<<"is_prime_q: "<<is_prime_q<<endl;
-				// gmp_printf ("%sValue of q_: %Zd\n","", q_prime);
-				// gmp_printf ("%sValue of q: %Zd\n","", q);
 				test_q = 1;
 			}
 		}	
@@ -133,9 +127,6 @@ void generate_PK(mpz_t N, mpz_t phi_n, mpz_t p, mpz_t q, mpz_t m, mpz_t beta, mp
 	mpz_mul(am,a,m);
 	mpz_mul(theta,am,beta);
 	mpz_mod(theta,theta,N);
-
-	gmp_printf ("Value N: %Zd\n",N);
-	gmp_printf ("Value phi(N): %Zd\n",phi_n);
 }
 
 
@@ -182,7 +173,6 @@ void F_shamir(mpz_t f_x, unsigned long int num_server,mpz_t ai[], unsigned long 
 		mpz_add(f_x,f_x,tmp);
 	}
 	mpz_powm_ui(f_x,f_x,1,Nm);
-	//gmp_printf ("Value of F(%ld): %Zd\n",num_server, f_x);
 }
 
 // Multicandidate: generate M = A^j, j:chosen candidate, A=nb_voters+1 > nb_voters
@@ -211,22 +201,16 @@ void Encryption(mpz_t C, mpz_t M, mpz_t g, mpz_t N){
 	mpz_t gcd_x_N;
 	mpz_init(gcd_x_N);
 
-	//TO DO: Check if x is prime ?
 	gmp_randstate_t state;
 	gmp_randinit_default(state);
 	srand(time(NULL));
 	unsigned long seed = rand()%1999+ (int)clock();    
 	gmp_randseed_ui(state,seed);
 	mpz_urandomm (x,state,N);
-	gmp_printf ("Value g: %Zd\n",g);
-	gmp_printf ("Value x: %Zd\n",x);
-	gmp_printf ("Value N: %Zd\n",N);
-	gmp_printf ("Value N_square: %Zd\n",N_square);
 	mpz_powm(gM,g,M,N_square);
 	mpz_powm(xN,x,N,N_square);
 	mpz_mul(res,gM,xN);
 	mpz_mod(C,res,N_square);
-	//gmp_printf ("Value of C: %Zd\n",C);
 }
 
 
@@ -252,7 +236,6 @@ void mu_0j_S(mpz_t res,unsigned long delta, unsigned long int j, mpz_t s[], unsi
 	mpz_init(multiple);
 	mpz_init(denom);
 	mpz_set_ui(res,delta);
-	//gmp_printf ("res= %Zd\n",res);
 	for(unsigned long int j_ = 0; j_ < nb_parts; ++j_){  
 		if(mpz_cmp(s[j_],s[j])!= 0){
 		//j'-j
@@ -261,11 +244,9 @@ void mu_0j_S(mpz_t res,unsigned long delta, unsigned long int j, mpz_t s[], unsi
 		//j'/j'-j
 		mpz_set(multiple,s[j_]);
 		mpz_cdiv_q(multiple,multiple,denom);
-		//gmp_printf ("multiple = %Zd\n",multiple);
-		//if(mpz_cmp_ui(multiple,0)) cout<<"ERROR\n",
+		
 		//res = res * (j'/j'-j)
 		mpz_mul(res, res, multiple);
-		//gmp_printf ("res = %Zd\n",res);
 		}
 	}
 	mpz_clear(multiple);
@@ -294,14 +275,12 @@ void combining_decryption(mpz_t M, mpz_t cj[], mpz_t N, mpz_t theta, unsigned lo
 	//4 * theta * delta²
 	mpz_mul_ui(den,den,4);
 	
-	//cout<<"##########j = 0###########\n\n";
 	mu_0j_S(exp,delta,0,cj,nb_parts); // si, cj
 	mpz_mul_ui(exp,exp,2);
 	mpz_powm(tmp,cj[0],exp,N_2);
 	mpz_set(prod,tmp);
 
 	for(unsigned long int j = 1 ; j < nb_parts; ++j){
-	//	cout<<"##########j = "<<j<<"###########\n\n";
 		mu_0j_S(exp,delta,j,cj,nb_parts); // cj, si
 		mpz_mul_ui(exp,exp,2);
 		mpz_powm(tmp,cj[j],exp,N_2);
@@ -312,9 +291,7 @@ void combining_decryption(mpz_t M, mpz_t cj[], mpz_t N, mpz_t theta, unsigned lo
 		L_function(oo,prod,N);
 		mpz_cdiv_q(oo,oo,den);
 		mpz_mod(oo,oo,N);
-		gmp_printf ("Etat combining_decryption: %Zd\n",oo);
 		if(mpz_cmp_ui(oo,1)== 0){
-			//cout << "1 HERE"<<endl;
 			mpz_set(M,oo);
 			mpz_clear(oo);
 			break;

@@ -71,10 +71,6 @@ int main(int argc,char **argv){
 
 	//mpz_div(C,C,C_UN);
 	//mpz_div(C,C,C_UN);
-	
-	
-
-
 
 
 	//conclusion : possibilité de retirer ou ajouter des chiffrés de 1 pour faire les comptes
