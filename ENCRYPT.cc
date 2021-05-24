@@ -64,6 +64,7 @@ int main(int argc,char **argv){
         monFlux.close();
 	
     int Nb_lignes = Nb_Lignes_Fichier_Votes_clairs();
+
     
     mpz_t chiffré[Nb_lignes];
     cout<<Nb_lignes<<endl;
@@ -78,7 +79,6 @@ int main(int argc,char **argv){
                 
                 mpz_init(chiffré[i]);
                 monFlux2 >> mot;
-                cout<<"mot = "<<mot<<endl;
                 mpz_set_str(message_clair,mot.c_str(),10);
                 Encryption(chiffré[i],message_clair,g,N);
                
@@ -99,10 +99,8 @@ int main(int argc,char **argv){
         {
             char * str = NULL; //ne reconnait pas les string en c++
             for(int i = 0 ; i < Nb_lignes; i++){
-                gmp_printf("chiffré = %d\n",i);
                 monFlux3<< mpz_get_str(str,10,chiffré[i])<<endl;
             }
-           
         }
         else
         {
@@ -116,7 +114,7 @@ int main(int argc,char **argv){
     for(int j = 0 ; j < Nb_lignes ; j++){
         mpz_clear(chiffré[j]);
     }
-
+    cout<<Nb_lignes<<endl;
 	return 0;
 }
 

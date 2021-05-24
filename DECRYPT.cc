@@ -129,10 +129,13 @@ int main(){
         
 
     //GENERATION DES VALEURS POUR LE DECHIFFREMENT
-    int nb_parts = 8; 
-    int size_ai = 5;//t A revoir pour ce nombre
+    int nb_parts = 4; 
+    int size_ai = 2;//t A revoir pour ce nombre
 	mpz_t ai[size_ai+1];
 	mpz_t ci[nb_parts],si[nb_parts]; 
+    mpz_t delta;
+    mpz_init(delta);
+    mpz_fac_ui(delta,nb_parts);
 
     for(int i = 0; i < nb_parts; ++i){
 		mpz_init(ci[i]);
@@ -156,22 +159,19 @@ int main(){
             share_ci(ci[i],C_tmp,nb_parts,i,ai,size_ai,si[i],N,m);
         }
 
-        //delta
-        unsigned long int delta = factorial(nb_parts);
 
         //déchiffrement
         combining_decryption(resultat,ci,N,theta,delta,si,nb_parts);
-        //gmp_printf("resultat = ")
-        if(mpz_cmp_ui(resultat,1) == 0) count++;
+        
+        if(mpz_cmp_ui(resultat,0) != 0) count++;
         mpz_clear(resultat);
         
     }
-    cout<<"Nombre de lignes"<<nbLignes<<endl;
     cout<<"Le candidat 0 a obtenu "<<(nbLignes - count)<<"votes"<<endl; 
     cout<<"Le candidat 1 a obtenu "<<count<<"votes"<<endl;
 
     //Libération de la mémoire
-    mpz_clears(N,p,q,phi_n,m,beta,a,b,g,theta,SK,NULL);
+    mpz_clears(N,p,q,phi_n,m,beta,a,b,g,theta,SK,delta,NULL);
     
    
     for(int i = 0 ; i < nbLignes ; i++)
@@ -190,6 +190,7 @@ int main(){
 		mpz_clear(ai[i]);
     }
 
+    cout<<"lignes : "<<nbLignes<<endl;
 	return 0;
 }
 

@@ -53,7 +53,7 @@ int main(int argc,char **argv){
 	mpz_set_ui(ZERO,0);
 	
 	
-	Encryption(C,ZERO,g,N);
+	Encryption(C,UN,g,N);
 	Encryption(C1,ZERO,g,N);
 	Encryption(C2,UN,g,N);
 	Encryption(C3,ZERO,g,N);
@@ -84,7 +84,9 @@ int main(int argc,char **argv){
 		gmp_printf ("Share c%d: %Zd\n",i,ci[i]);
 	}
     //delta
-	unsigned long int delta = factorial(nb_parts);
+	mpz_t delta;
+	mpz_init(delta);
+	mpz_fac_ui(delta,nb_parts);
 
 	cout<<"Combining decryption\n";
 	//déchiffrement
@@ -104,6 +106,7 @@ int main(int argc,char **argv){
     mpz_clear(SK);
     mpz_clear(theta);
    	mpz_clear(f_x);
+	mpz_clear(delta);
     
 
     for(int i = 0 ; i < nb_parts; i++){  

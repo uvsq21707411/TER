@@ -231,11 +231,11 @@ void share_ci(mpz_t ci, mpz_t c, unsigned long int nb_servers, unsigned long int
 }
 
 // Utilisée dans combining_decryption, le set s contient les partial decryptions donc les cj
-void mu_0j_S(mpz_t res,unsigned long delta, unsigned long int j, mpz_t s[], unsigned long int nb_parts){
+void mu_0j_S(mpz_t res, mpz_t delta, unsigned long int j, mpz_t s[], unsigned long int nb_parts){
 	mpz_t multiple,denom;
 	mpz_init(multiple);
 	mpz_init(denom);
-	mpz_set_ui(res,delta);
+	mpz_set(res,delta);
 	for(unsigned long int j_ = 0; j_ < nb_parts; ++j_){  
 		if(mpz_cmp(s[j_],s[j])!= 0){
 		//j'-j
@@ -256,10 +256,9 @@ void mu_0j_S(mpz_t res,unsigned long delta, unsigned long int j, mpz_t s[], unsi
 // Utilise toutes les partial decryption cj pour retrouver M
 // Dans le cas d'un vote non binaire, M devra être décomposé en base A pour faire le décompte des votes
 // v0+v1*A+...+ vk−1*A^k−1, où vj est le nombre de votes pour le candidat j, vj=<l<A
-void combining_decryption(mpz_t M, mpz_t cj[], mpz_t N, mpz_t theta, unsigned long int delta, mpz_t si[], unsigned long int nb_parts){
+void combining_decryption(mpz_t M, mpz_t cj[], mpz_t N, mpz_t theta, mpz_t delta, mpz_t si[], unsigned long int nb_parts){
 	
-	unsigned long int delta_2;
-	mpz_t N_2, den, prod, tmp,exp; 
+	mpz_t delta_2,N_2, den, prod, tmp,exp; 
 	
 	mpz_init(N_2);
 	mpz_init(exp);
@@ -270,11 +269,10 @@ void combining_decryption(mpz_t M, mpz_t cj[], mpz_t N, mpz_t theta, unsigned lo
 	//N²
 	mpz_mul(N_2,N,N);
 	//delta²
-	delta_2 = pow(delta,2);
-	mpz_mul_ui(den,theta,delta_2);
+	mpz_pow_ui(delta_2,delta,2);
+	mpz_mul(den,theta,delta_2);
 	//4 * theta * delta²
 	mpz_mul_ui(den,den,4);
-	
 	mu_0j_S(exp,delta,0,cj,nb_parts); // si, cj
 	mpz_mul_ui(exp,exp,2);
 	mpz_powm(tmp,cj[0],exp,N_2);
